@@ -93,8 +93,8 @@ void MySetupSurfaces() {
 void MyRemeshSurfaces() 
 {
     // WRITE MyRemeshFloor (see below) AND USE IT INSTEAD OF RemeshPlaneDemo
-    RemeshFloorDemo();
-    // MyRemeshFloor();
+    // RemeshFloorDemo();
+    MyRemeshFloor();
 
     // WRITE MyRemeshCircularSurf (see below) AND USE IT INSTEAD OF RemeshCircularDemo
     RemeshCircularDemo();
@@ -111,8 +111,8 @@ void MyRemeshSurfaces()
 
 void MyRenderSurfaces() {
     // WRITE MyRemeshFloor (see below) AND USE IT INSTEAD OF RemeshPlaneDemo
-    RenderFloorDemo();
-    // MyRenderFloor();
+    // RenderFloorDemo(); 
+    MyRenderFloor();
 
     // WRITE MyRemeshCircularSurf (see below) AND USE IT INSTEAD OF RemeshCircularDemo
     RenderCircularDemo();
@@ -247,13 +247,38 @@ void MyRemeshFloor()
     // SYNTAX AS ARRAYS.  FOR EXAMPLE,
     // floorVerts[0], floorVerts[1], floorVerts[2] ARE THE x,y,z
     // COMPONENTS OF THE FIRST VERTEX.
+    float startX = -5.0; 
+    float startZ = -5.0; 
+    for (int i = 0; i <= meshRes; i++) { // handles each row 
+        for (int j = 0; j <= meshRes; j++) { // handles every sets of points 
+            // this will cover 3 at a time (0, 1, 2) -> (3, 4 ,5) -> (6, 7,8) 
+            floorVerts[((meshRes + 1) * i)*3 + 3* j] = -5.0 + (float)j * 10.0 / meshRes; // x value 
+            floorVerts[((meshRes + 1) * i)* 3+ 3 * j + 1] = 0; // y value 
+            floorVerts[((meshRes + 1) * i)* 3+ 3* j + 2] = -5.0 + (10.0 / meshRes) * (float)i;
+        }
+    }
+        // ARRAY FOR floorElements (outer loop takes care of diff triangle strips and inners take care of the elements in it 
+    unsigned int evenIndex = 0; 
+    unsigned int oddIndex = 5; 
 
+    for (int i = 0; i < meshRes; i++) {
+        for (int j = 0; j < (2*(meshRes+1)); j++) { // 10 different parameters 
+            // floorElements[(meshRes + 1) * i + j] = 0.0;
+            // if the index is even, then we want to index it starting @ 0 
+            if ( ((((meshRes + 1) * 2) * i)  + j) % 2 == 0) {
+                floorElements[((meshRes + 1) * i )*2 + j] = evenIndex++; 
+            }
+            else { // if the index is odd then we want to index it start @ higher index
+                floorElements[((meshRes + 1) * 2) * i + j] = oddIndex++;
+            }
+        }
+    }
     // PROJECT 4 REQUIRES TO WRITE CODE THAT:
     // CALCULATES THE CONTENTS OF THE TWO ARRAYS.
     // THEN LOADS THE DATA INTO THE VBO AND EBO BUFFERS.
-    float  * vertices = new float[meshRes]; 
+    
 
-#if 0
+#if 1
     // SOME SUGGESTED TEST CODE: Can be used to examine contents of your arrays
     printf("floorVerts:\n");
     for (int k = 0; k < numFloorVerts; k++) {
@@ -268,6 +293,11 @@ void MyRemeshFloor()
 
     // Load data into the VBO and EBO using glBindBuffer and glBufferData commands
     // YOU NEED TO WRITE THIS CODE FOR THE PROJECT 4
+    // x y z * 3 
+    glBindBuffer(GL_ARRAY_BUFFER, myVBO[iFloor]);
+    glBufferData(GL_ARRAY_BUFFER, 3 * sizeof(float) * numFloorVerts , floorVerts, GL_STATIC_DRAW);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, myEBO[iFloor]);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * numFloorElts, floorElements, GL_STATIC_DRAW);
 
     // The array should have been copied into the GPU buffers now.
     // If you use "new" above, you MUST delete the arrays here to avoid a memory leak.
@@ -287,6 +317,12 @@ void MyRemeshCircularSurf()
     // THEN LOAD THE DATA INTO THE VBO AND EBO BUFFERS
     // AND DELETE ANY TEMPORARILY ALLOCATED MEMORY.
 
+    // its 9 * 6 
+    int numCircularVerts = (meshRes + 2) * ((meshRes * 2) + 1); 
+    float* circularVerts = new float[numCircularVerts]; 
+    int numCircularElements = meshRes * (meshRes + 1);
+    unsigned int* circularElements = new unsigned int[numCircularElements]; 
+
 }
 
 // ****
@@ -297,7 +333,21 @@ void MyRenderFloor()
 {
     // Render the floor using calls to glDrawElements
     // YOU MUST WRITE THIS FUNCTION FOR PROJECT 4.
- 
+    glBindVertexArray(myVAO[iFloor]);
+
+    // Set the uniform values (they are not stored with the VAO and thus must be set again everytime
+    glVertexAttrib3f(vNormal_loc, 0.0, 1.0, 0.0);    // Generic vertex attribute: Normal is (0,1,0) for the floor.
+    glVertexAttrib3f(vColor_loc, 1.0f, 0.4f, 0.4f);	 // Generic vertex attribute: Color (light red) for the floor. 
+    viewMatrix.DumpByColumns(matEntries);
+    glUniformMatrix4fv(modelviewMatLocation, 1, false, matEntries);
+
+    // Draw the four triangle strips
+    // 2 * i * meshres + 1 is due to the fact that we needed 
+
+    for (int i = 0; i < meshRes; i++) {
+        glDrawElements(GL_TRIANGLE_STRIP, 2 * (meshRes + 1), GL_UNSIGNED_INT, (void*)((i * 2 *(meshRes +1)) * sizeof(unsigned int)));
+    }
+    //glDrawElements(GL_TRIANGLE_STRIP, 5, GL_UNSIGNED_INT, (void*)0);  
 }
 
 // ****
@@ -308,5 +358,7 @@ void MyRenderCircularSurf()
 {
     // Render the circular surface using calls to glDrawElements.
     // YOU MUST WRITE THIS FUNCTION FOR PROJECT 4.
+
+    // mesh rez 
 }
 
