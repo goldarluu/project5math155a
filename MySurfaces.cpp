@@ -252,20 +252,27 @@ void MyRemeshFloor()
     for (int i = 0; i <= meshRes; i++) { // handles each row 
         for (int j = 0; j <= meshRes; j++) { // handles every sets of points 
             // this will cover 3 at a time (0, 1, 2) -> (3, 4 ,5) -> (6, 7,8) 
-            floorVerts[((meshRes + 1) * i)*3 + 3* j] = -5.0 + (float)j * 10.0 / meshRes; // x value 
+            floorVerts[((meshRes + 1) * i)*3 + 3* j] = -5.0 + (float)j * (10.0 / meshRes); // x value 
             floorVerts[((meshRes + 1) * i)* 3+ 3 * j + 1] = 0; // y value 
             floorVerts[((meshRes + 1) * i)* 3+ 3* j + 2] = -5.0 + (10.0 / meshRes) * (float)i;
         }
     }
-        // ARRAY FOR floorElements (outer loop takes care of diff triangle strips and inners take care of the elements in it 
-    unsigned int evenIndex = 0; 
-    unsigned int oddIndex = 5; 
+        unsigned int evenStartIndex = 0; 
+    unsigned int oddStartIndex = 5; 
+    for (int i = 0; i < numFloorElts; i+=2) {
+        floorElements[i] = evenStartIndex++; 
+        floorElements[i+1] = oddStartIndex++; 
+    }
 
-    for (int i = 0; i < meshRes; i++) {
+    /*
+    *     unsigned int evenIndex = 0; 
+    unsigned int oddIndex = 5; 
+    * for (int i = 0; i < meshRes; i++) {
         for (int j = 0; j < (2*(meshRes+1)); j++) { // 10 different parameters 
             // floorElements[(meshRes + 1) * i + j] = 0.0;
             // if the index is even, then we want to index it starting @ 0 
-            if ( ((((meshRes + 1) * 2) * i)  + j) % 2 == 0) {
+            //if ( ((((meshRes + 1) * 2) * i)  + j) % 2 == 0)
+            if ((((meshRes + 1) * 2 * i) + j) % 2 == 0) {
                 floorElements[((meshRes + 1) * i )*2 + j] = evenIndex++; 
             }
             else { // if the index is odd then we want to index it start @ higher index
@@ -273,6 +280,9 @@ void MyRemeshFloor()
             }
         }
     }
+    */
+
+    
     // PROJECT 4 REQUIRES TO WRITE CODE THAT:
     // CALCULATES THE CONTENTS OF THE TWO ARRAYS.
     // THEN LOADS THE DATA INTO THE VBO AND EBO BUFFERS.
@@ -360,5 +370,26 @@ void MyRenderCircularSurf()
     // YOU MUST WRITE THIS FUNCTION FOR PROJECT 4.
 
     // mesh rez 
+    LinearMapR4 matDemo = viewMatrix;
+    matDemo.Mult_glTranslate(2.5, 1.0, 2.5);     // Center in the front right quadrant & raise up
+    matDemo.Mult_glScale(3.0, 1.0, 3.0);         // Increase the circular diameter
+
+    // Set the uniform values (they are not stored with the VAO and thus must be set again everytime
+    glVertexAttrib3f(vColor_loc, 1.0f, 0.8f, 0.4f);	 // Generic vertex attribute: Color (yellow-ish) for the circular surface. 
+    matDemo.DumpByColumns(matEntries);
+    glUniformMatrix4fv(modelviewMatLocation, 1, false, matEntries);
+    
+
+    for (int i = 0; i < meshRes; i++) {
+        glDrawElements(GL_TRIANGLE_STRIP, 2*(meshRes + 1), GL_UNSIGNED_INT, (void*)(2 * i * (meshRes + 1) * sizeof(unsigned int)));
+    }
+
+    /*
+    // Draw the four triangle strips
+    glDrawElements(GL_TRIANGLE_STRIP, 5, GL_UNSIGNED_INT, (void*)0);                             // Draw first triangle strip
+    glDrawElements(GL_TRIANGLE_STRIP, 5, GL_UNSIGNED_INT, (void*)(5 * sizeof(unsigned int)));    // Draw second triangle strip
+    glDrawElements(GL_TRIANGLE_STRIP, 5, GL_UNSIGNED_INT, (void*)(10 * sizeof(unsigned int)));   // Draw third triangle strip
+    glDrawElements(GL_TRIANGLE_STRIP, 5, GL_UNSIGNED_INT, (void*)(15 * sizeof(unsigned int)));   // Draw fourth triangle strip
+    */
 }
 
