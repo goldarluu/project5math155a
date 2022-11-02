@@ -247,39 +247,32 @@ void MyRemeshFloor()
     // SYNTAX AS ARRAYS.  FOR EXAMPLE,
     // floorVerts[0], floorVerts[1], floorVerts[2] ARE THE x,y,z
     // COMPONENTS OF THE FIRST VERTEX.
-    float startX = -5.0; 
-    float startZ = -5.0; 
     for (int i = 0; i <= meshRes; i++) { // handles each row 
         for (int j = 0; j <= meshRes; j++) { // handles every sets of points 
             // this will cover 3 at a time (0, 1, 2) -> (3, 4 ,5) -> (6, 7,8) 
-            floorVerts[((meshRes + 1) * i)*3 + 3* j] = -5.0 + (float)j * (10.0 / meshRes); // x value 
-            floorVerts[((meshRes + 1) * i)* 3+ 3 * j + 1] = 0; // y value 
-            floorVerts[((meshRes + 1) * i)* 3+ 3* j + 2] = -5.0 + (10.0 / meshRes) * (float)i;
+            floorVerts[((meshRes + 1) * i) *3 + (3 * j)] = -5.0 + (float)j * (10.0 / meshRes); // x value 
+            floorVerts[((meshRes + 1) * i)* 3+ (3 * j) + 1] = 0; // y value 
+            floorVerts[((meshRes + 1) * i)* 3 + (3* j) + 2] = -5.0 + (float)i* (10.0 / meshRes);
         }
     }
-        unsigned int evenStartIndex = 0; 
-    unsigned int oddStartIndex = 5; 
-    for (int i = 0; i < numFloorElts; i+=2) {
+    unsigned int evenStartIndex = 0;
+    unsigned int oddStartIndex = (meshRes +1);
+    for (int i = 0; i < numFloorElts; i += 2) {
         floorElements[i] = evenStartIndex++; 
         floorElements[i+1] = oddStartIndex++; 
     }
-
+    
     /*
-    *     unsigned int evenIndex = 0; 
-    unsigned int oddIndex = 5; 
-    * for (int i = 0; i < meshRes; i++) {
-        for (int j = 0; j < (2*(meshRes+1)); j++) { // 10 different parameters 
-            // floorElements[(meshRes + 1) * i + j] = 0.0;
-            // if the index is even, then we want to index it starting @ 0 
-            //if ( ((((meshRes + 1) * 2) * i)  + j) % 2 == 0)
-            if ((((meshRes + 1) * 2 * i) + j) % 2 == 0) {
-                floorElements[((meshRes + 1) * i )*2 + j] = evenIndex++; 
+    for (int i = 0; i < maxRes; i++) {
+        for (int j = 0; j < 2 * (maxRes + 1); j++) {
+            if (j % 2 == 0) {
+                floorElements[2 * (maxRes + 1) * i + j] = evenStartIndex++;
             }
-            else { // if the index is odd then we want to index it start @ higher index
-                floorElements[((meshRes + 1) * 2) * i + j] = oddIndex++;
+            else {
+                floorElements[2 * (maxRes + 1) * i + j]= oddStartIndex++;
             }
         }
-    }
+   }
     */
 
     
@@ -309,6 +302,7 @@ void MyRemeshFloor()
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, myEBO[iFloor]);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * numFloorElts, floorElements, GL_STATIC_DRAW);
 
+
     // The array should have been copied into the GPU buffers now.
     // If you use "new" above, you MUST delete the arrays here to avoid a memory leak.
     delete[] floorVerts;
@@ -332,6 +326,43 @@ void MyRemeshCircularSurf()
     float* circularVerts = new float[numCircularVerts]; 
     int numCircularElements = meshRes * (meshRes + 1);
     unsigned int* circularElements = new unsigned int[numCircularElements]; 
+
+    // fill up the arrays now 
+    /*
+    //      in MySetupSurfaces() above.
+    float circularVerts[] = {
+        // Vertex positions     Normals (please make them *unit* vectors)
+        0.0f, 1.0f, 0.0f,       0.0f, 1.0f, 0.0f,        // Central vertex
+        0.0f, 0.866f, 0.5f,     0.0f, 0.866f, 0.5f,     // Over positive z axis
+        0.0f, 0.5f, 0.866f,     0.0f, 0.5f, 0.866f,     
+        0.5f, 0.866f, 0.0f,     0.5f, 0.866f, 0.0f,     // Over positive x-axis
+        0.866f, 0.5f, 0.0f,     0.866f, 0.5f, 0.0f,
+        0.0f, 0.866f, -0.5f,    0.0f, 0.866f, -0.5f,    // Over negative z axis
+        0.0f, 0.5f, -0.866f,    0.0f, 0.5f, -0.866f,
+        -0.5f, 0.866f, 0.0f,    -0.5f, 0.866f, 0.0f,    // Over negative x-axis
+        -0.866f, 0.5f, 0.0f,    -0.866f, 0.5f, 0.0f,
+    };
+    // Circular elements (indices to vertices in triangle strips)
+    unsigned int circularElements[] = {
+        0, 1, 3, 2, 4,            // Elements for first triangle strip 
+        0, 3, 5, 4, 6,            // Elements for second triangle strip
+        0, 5, 7, 6, 8,            // Elements for third triangle strip
+        0, 7, 1, 8, 2            // Elements for fourth triangle strip 
+    };*/
+
+    // Circular elements 
+    
+
+
+    glBindVertexArray(myVAO[iCircularSurf]);
+    glBindBuffer(GL_ARRAY_BUFFER, myVBO[iCircularSurf]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(circularVerts), circularVerts, GL_STATIC_DRAW);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, myEBO[iCircularSurf]);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(circularElements), circularElements, GL_STATIC_DRAW);
+
+    // deallocate the memory 
+    delete[] circularVerts; 
+    delete[] circularElements; 
 
 }
 
