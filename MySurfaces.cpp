@@ -256,32 +256,17 @@ void MyRemeshFloor()
         }
     }
     unsigned int evenStartIndex = 0;
-    unsigned int oddStartIndex = (meshRes +1);
+    unsigned int oddStartIndex = (meshRes +1); // oddindex should be meshRes + 1, 5 is only the starting pt for meshRes = 4 
     for (int i = 0; i < numFloorElts; i += 2) {
         floorElements[i] = evenStartIndex++; 
         floorElements[i+1] = oddStartIndex++; 
     }
-    
-    /*
-    for (int i = 0; i < maxRes; i++) {
-        for (int j = 0; j < 2 * (maxRes + 1); j++) {
-            if (j % 2 == 0) {
-                floorElements[2 * (maxRes + 1) * i + j] = evenStartIndex++;
-            }
-            else {
-                floorElements[2 * (maxRes + 1) * i + j]= oddStartIndex++;
-            }
-        }
-   }
-    */
-
-    
     // PROJECT 4 REQUIRES TO WRITE CODE THAT:
     // CALCULATES THE CONTENTS OF THE TWO ARRAYS.
     // THEN LOADS THE DATA INTO THE VBO AND EBO BUFFERS.
     
 
-#if 1
+#if 0
     // SOME SUGGESTED TEST CODE: Can be used to examine contents of your arrays
     printf("floorVerts:\n");
     for (int k = 0; k < numFloorVerts; k++) {
@@ -351,7 +336,11 @@ void MyRemeshCircularSurf()
     };*/
 
     // Circular elements 
-    
+    for (int i = 0; i < meshRes; i++) {
+        for (int j = 0; j < meshRes * 2; j++) {
+            continue; 
+        }
+    }
 
 
     glBindVertexArray(myVAO[iCircularSurf]);
@@ -388,7 +377,6 @@ void MyRenderFloor()
     for (int i = 0; i < meshRes; i++) {
         glDrawElements(GL_TRIANGLE_STRIP, 2 * (meshRes + 1), GL_UNSIGNED_INT, (void*)((i * 2 *(meshRes +1)) * sizeof(unsigned int)));
     }
-    //glDrawElements(GL_TRIANGLE_STRIP, 5, GL_UNSIGNED_INT, (void*)0);  
 }
 
 // ****
