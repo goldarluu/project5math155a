@@ -334,11 +334,25 @@ void MyRemeshCircularSurf()
         0, 5, 7, 6, 8,            // Elements for third triangle strip
         0, 7, 1, 8, 2            // Elements for fourth triangle strip 
     };*/
+    // you have done the 
+    // now to do the circular 
+
+
+
+
 
     // Circular elements 
+    unsigned int oddIndex_c = 1; 
+    unsigned int evenIndex_c = meshRes - 1; 
     for (int i = 0; i < meshRes; i++) {
-        for (int j = 0; j < meshRes * 2; j++) {
-            continue; 
+        circularElements[i * meshRes] = 0; 
+        for (int j = 1; j < meshRes+ 1; j++) {
+            if (oddIndex_c % (meshRes * 2) + 1 == 0) oddIndex_c = 1; 
+            if (evenIndex_c % (meshRes * 2) + 1 == 0) evenIndex_c = 1; 
+            if (j % 2 == 0) {
+                circularElements[i*meshRes + j] = evenIndex_c++;
+            }
+            else if (j % 2 != 0) circularElements[i * meshRes +j] = oddIndex_c++;  
         }
     }
 
