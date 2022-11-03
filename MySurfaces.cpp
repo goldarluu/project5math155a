@@ -336,10 +336,14 @@ void MyRemeshCircularSurf()
     };*/
 
     // Circular Verts 
-    // go through the rows then go through the columns 
-    for (int i = 0; i < meshRes; i++) {
-        for (int j = 0; j < meshRes; j++) {
-
+    // go through the rows then go through each set
+    float radius = 2.7* PI2 / meshRes; // sets our 
+    for (int i = 0; i < meshRes; i++) { // this controlsgoing around 
+        radius = 2.7 * PI2*  i / meshRes; // update the radius going around 
+        for (int j = 0; j < meshRes; j++) { // this controls the evolving radius 
+            circularVerts[i * meshRes + j] = 0; // do the x variable 
+            circularVerts[i * meshRes + j] = 0; // y variable 
+            circularVerts[i * meshRes + j] = 0; // z variable 
         }
     }
 
@@ -349,8 +353,8 @@ void MyRemeshCircularSurf()
     for (int i = 0; i < meshRes; i++) {
         circularElements[i * (meshRes + 1)] = 0;// sets the first element to 0 
         for (int j = 1; j < meshRes + 1; j++) {
-           
-             // we're at one past, so just set to 1
+
+            // we're at one past, so just set to 1
             if (evenIndex_c % ((meshRes * 2) + 1) == 0) evenIndex_c = 1;
             if (oddIndex_c % ((meshRes * 2) + 1) == 0) oddIndex_c = 1;
             // here we can just check if our current j is odd or even 
