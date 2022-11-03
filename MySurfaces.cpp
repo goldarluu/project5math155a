@@ -62,7 +62,7 @@ void MySetupSurfaces() {
 
     glVertexAttribPointer(vPos_loc, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);	// Store vertices in the VBO
     glEnableVertexAttribArray(vPos_loc);									// Enable the stored vertices
- 
+
     // For the circular surface:
     // Allocate the needed VAO, VBO< EBO
     // The normal vector is specified separately for each vertex. (It is not a generic attribute.)
@@ -80,7 +80,7 @@ void MySetupSurfaces() {
     // This is done next by the "Remesh" routines.
 
     MyRemeshSurfaces();
-    
+
     check_for_opengl_errors();      // Watch the console window for error messages!
 }
 
@@ -90,15 +90,15 @@ void MySetupSurfaces() {
 // INSTEAD OF THE "DEMO" VERSIONS.
 // **********************************************
 
-void MyRemeshSurfaces() 
+void MyRemeshSurfaces()
 {
     // WRITE MyRemeshFloor (see below) AND USE IT INSTEAD OF RemeshPlaneDemo
     // RemeshFloorDemo();
     MyRemeshFloor();
 
     // WRITE MyRemeshCircularSurf (see below) AND USE IT INSTEAD OF RemeshCircularDemo
-    RemeshCircularDemo();
-    // MyRemeshCircularSurf();
+    //RemeshCircularDemo();
+    MyRemeshCircularSurf();
 
     check_for_opengl_errors();      // Watch the console window for error messages!
 }
@@ -164,7 +164,7 @@ void RemeshCircularDemo()
         // Vertex positions     Normals (please make them *unit* vectors)
         0.0f, 1.0f, 0.0f,       0.0f, 1.0f, 0.0f,        // Central vertex
         0.0f, 0.866f, 0.5f,     0.0f, 0.866f, 0.5f,     // Over positive z axis
-        0.0f, 0.5f, 0.866f,     0.0f, 0.5f, 0.866f,     
+        0.0f, 0.5f, 0.866f,     0.0f, 0.5f, 0.866f,
         0.5f, 0.866f, 0.0f,     0.5f, 0.866f, 0.0f,     // Over positive x-axis
         0.866f, 0.5f, 0.0f,     0.866f, 0.5f, 0.0f,
         0.0f, 0.866f, -0.5f,    0.0f, 0.866f, -0.5f,    // Over negative z axis
@@ -233,14 +233,14 @@ void RenderCircularDemo()
 void MyRemeshFloor()
 {
     // Sample code for allocating arrays of floats and unsigned int's with new[] and delete[]
-	// The code fragment for allocating/deleting arrays uses C++ new and delete[].
-	// You may optionally instead use the Standard Template Library std::vector<float> if you wish.
-	
+    // The code fragment for allocating/deleting arrays uses C++ new and delete[].
+    // You may optionally instead use the Standard Template Library std::vector<float> if you wish.
+
     // Floor vertices.
-    int numFloorVerts = (meshRes + 1)*(meshRes + 1);
+    int numFloorVerts = (meshRes + 1) * (meshRes + 1);
     float* floorVerts = new float[3 * numFloorVerts];
     // Floor elements (indices to vertices in a triangle strip)
-    int numFloorElts = meshRes * 2 * (meshRes + 1);    
+    int numFloorElts = meshRes * 2 * (meshRes + 1);
     unsigned int* floorElements = new unsigned int[numFloorElts];
 
     // YOU CAN NOW ACCESS floorVerts AND floorElements WITH THE SAME
@@ -250,21 +250,21 @@ void MyRemeshFloor()
     for (int i = 0; i <= meshRes; i++) { // handles each row 
         for (int j = 0; j <= meshRes; j++) { // handles every sets of points 
             // this will cover 3 at a time (0, 1, 2) -> (3, 4 ,5) -> (6, 7,8) 
-            floorVerts[((meshRes + 1) * i) *3 + (3 * j)] = -5.0 + (float)j * (10.0 / meshRes); // x value 
-            floorVerts[((meshRes + 1) * i)* 3+ (3 * j) + 1] = 0; // y value 
-            floorVerts[((meshRes + 1) * i)* 3 + (3* j) + 2] = -5.0 + (float)i* (10.0 / meshRes);
+            floorVerts[((meshRes + 1) * i) * 3 + (3 * j)] = -5.0 + (float)j * (10.0 / meshRes); // x value 
+            floorVerts[((meshRes + 1) * i) * 3 + (3 * j) + 1] = 0; // y value 
+            floorVerts[((meshRes + 1) * i) * 3 + (3 * j) + 2] = -5.0 + (float)i * (10.0 / meshRes);
         }
     }
     unsigned int evenStartIndex = 0;
-    unsigned int oddStartIndex = (meshRes +1); // oddindex should be meshRes + 1, 5 is only the starting pt for meshRes = 4 
+    unsigned int oddStartIndex = (meshRes + 1); // oddindex should be meshRes + 1, 5 is only the starting pt for meshRes = 4 
     for (int i = 0; i < numFloorElts; i += 2) {
-        floorElements[i] = evenStartIndex++; 
-        floorElements[i+1] = oddStartIndex++; 
+        floorElements[i] = evenStartIndex++;
+        floorElements[i + 1] = oddStartIndex++;
     }
     // PROJECT 4 REQUIRES TO WRITE CODE THAT:
     // CALCULATES THE CONTENTS OF THE TWO ARRAYS.
     // THEN LOADS THE DATA INTO THE VBO AND EBO BUFFERS.
-    
+
 
 #if 0
     // SOME SUGGESTED TEST CODE: Can be used to examine contents of your arrays
@@ -283,7 +283,7 @@ void MyRemeshFloor()
     // YOU NEED TO WRITE THIS CODE FOR THE PROJECT 4
     // x y z * 3 
     glBindBuffer(GL_ARRAY_BUFFER, myVBO[iFloor]);
-    glBufferData(GL_ARRAY_BUFFER, 3 * sizeof(float) * numFloorVerts , floorVerts, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, 3 * sizeof(float) * numFloorVerts, floorVerts, GL_STATIC_DRAW);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, myEBO[iFloor]);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * numFloorElts, floorElements, GL_STATIC_DRAW);
 
@@ -307,10 +307,10 @@ void MyRemeshCircularSurf()
     // AND DELETE ANY TEMPORARILY ALLOCATED MEMORY.
 
     // its 9 * 6 
-    int numCircularVerts = (meshRes + 2) * ((meshRes * 2) + 1); 
-    float* circularVerts = new float[numCircularVerts]; 
+    int numCircularVerts = (meshRes + 2) * ((meshRes * 2) + 1);
+    float* circularVerts = new float[numCircularVerts];
     int numCircularElements = meshRes * (meshRes + 1);
-    unsigned int* circularElements = new unsigned int[numCircularElements]; 
+    unsigned int* circularElements = new unsigned int[numCircularElements];
 
     // fill up the arrays now 
     /*
@@ -319,7 +319,7 @@ void MyRemeshCircularSurf()
         // Vertex positions     Normals (please make them *unit* vectors)
         0.0f, 1.0f, 0.0f,       0.0f, 1.0f, 0.0f,        // Central vertex
         0.0f, 0.866f, 0.5f,     0.0f, 0.866f, 0.5f,     // Over positive z axis
-        0.0f, 0.5f, 0.866f,     0.0f, 0.5f, 0.866f,     
+        0.0f, 0.5f, 0.866f,     0.0f, 0.5f, 0.866f,
         0.5f, 0.866f, 0.0f,     0.5f, 0.866f, 0.0f,     // Over positive x-axis
         0.866f, 0.5f, 0.0f,     0.866f, 0.5f, 0.0f,
         0.0f, 0.866f, -0.5f,    0.0f, 0.866f, -0.5f,    // Over negative z axis
@@ -329,43 +329,54 @@ void MyRemeshCircularSurf()
     };
     // Circular elements (indices to vertices in triangle strips)
     unsigned int circularElements[] = {
-        0, 1, 3, 2, 4,            // Elements for first triangle strip 
+        0, 1, 3, 2, 4,            // Elements for first triangle strip
         0, 3, 5, 4, 6,            // Elements for second triangle strip
         0, 5, 7, 6, 8,            // Elements for third triangle strip
-        0, 7, 1, 8, 2            // Elements for fourth triangle strip 
+        0, 7, 1, 8, 2            // Elements for fourth triangle strip
     };*/
-    // you have done the 
-    // now to do the circular 
 
-
-
-
-
-    // Circular elements 
-    unsigned int oddIndex_c = 1; 
-    unsigned int evenIndex_c = meshRes - 1; 
+    // Circular Verts 
+    // go through the rows then go through the columns 
     for (int i = 0; i < meshRes; i++) {
-        circularElements[i * meshRes] = 0; 
-        for (int j = 1; j < meshRes+ 1; j++) {
-            if (oddIndex_c % (meshRes * 2) + 1 == 0) oddIndex_c = 1; 
-            if (evenIndex_c % (meshRes * 2) + 1 == 0) evenIndex_c = 1; 
-            if (j % 2 == 0) {
-                circularElements[i*meshRes + j] = evenIndex_c++;
-            }
-            else if (j % 2 != 0) circularElements[i * meshRes +j] = oddIndex_c++;  
+        for (int j = 0; j < meshRes; j++) {
+
         }
     }
 
+    // Circular elements 
+    unsigned int oddIndex_c = 1;
+    unsigned int evenIndex_c = meshRes - 1;
+    for (int i = 0; i < meshRes; i++) {
+        circularElements[i * (meshRes + 1)] = 0;// sets the first element to 0 
+        for (int j = 1; j < meshRes + 1; j++) {
+           
+             // we're at one past, so just set to 1
+            if (evenIndex_c % ((meshRes * 2) + 1) == 0) evenIndex_c = 1;
+            if (oddIndex_c % ((meshRes * 2) + 1) == 0) oddIndex_c = 1;
+            // here we can just check if our current j is odd or even 
+            if (j % 2 == 0) circularElements[i * (meshRes + 1) + j] = evenIndex_c++;
+            else if (j % 2 != 0) circularElements[i * (meshRes + 1) + j] = oddIndex_c++;
+        }
+    }
+#if 1
+    // SOME SUGGESTED TEST CODE: Can be used to examine contents of your arrays
+    printf("floorElements:\n");
+    for (int k = 0; k < numCircularElements; k++) {
+        printf("%d, ", circularElements[k]);
+    }
+    printf("\n");
+#endif
 
+    // Done 
     glBindVertexArray(myVAO[iCircularSurf]);
     glBindBuffer(GL_ARRAY_BUFFER, myVBO[iCircularSurf]);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(circularVerts), circularVerts, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * numCircularVerts, circularVerts, GL_STATIC_DRAW);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, myEBO[iCircularSurf]);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(circularElements), circularElements, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * numCircularElements, circularElements, GL_STATIC_DRAW);
 
     // deallocate the memory 
-    delete[] circularVerts; 
-    delete[] circularElements; 
+    delete[] circularVerts;
+    delete[] circularElements;
 
 }
 
@@ -389,7 +400,7 @@ void MyRenderFloor()
     // 2 * i * meshres + 1 is due to the fact that we needed 
 
     for (int i = 0; i < meshRes; i++) {
-        glDrawElements(GL_TRIANGLE_STRIP, 2 * (meshRes + 1), GL_UNSIGNED_INT, (void*)((i * 2 *(meshRes +1)) * sizeof(unsigned int)));
+        glDrawElements(GL_TRIANGLE_STRIP, 2 * (meshRes + 1), GL_UNSIGNED_INT, (void*)((i * 2 * (meshRes + 1)) * sizeof(unsigned int)));
     }
 }
 
@@ -411,10 +422,10 @@ void MyRenderCircularSurf()
     glVertexAttrib3f(vColor_loc, 1.0f, 0.8f, 0.4f);	 // Generic vertex attribute: Color (yellow-ish) for the circular surface. 
     matDemo.DumpByColumns(matEntries);
     glUniformMatrix4fv(modelviewMatLocation, 1, false, matEntries);
-    
+
 
     for (int i = 0; i < meshRes; i++) {
-        glDrawElements(GL_TRIANGLE_STRIP, 2*(meshRes + 1), GL_UNSIGNED_INT, (void*)(2 * i * (meshRes + 1) * sizeof(unsigned int)));
+        glDrawElements(GL_TRIANGLE_STRIP, (meshRes + 1), GL_UNSIGNED_INT, (void*)(i * (meshRes + 1) * sizeof(unsigned int)));
     }
 
     /*
@@ -425,4 +436,3 @@ void MyRenderCircularSurf()
     glDrawElements(GL_TRIANGLE_STRIP, 5, GL_UNSIGNED_INT, (void*)(15 * sizeof(unsigned int)));   // Draw fourth triangle strip
     */
 }
-
