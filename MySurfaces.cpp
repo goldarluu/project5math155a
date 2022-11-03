@@ -327,11 +327,10 @@ void MyRemeshCircularSurf()
 
     // Define the variables necessary 
     float slope = 0, compute = 0, magnitude = 0, xVal = 0, yVal = 0, zVal = 0;
-    float magnitude = 0; 
     for (int i = 0; i < meshRes; i++) { // this controls going aroud, so it should change our theta value each time it goes through 
         //radius = (2.7 * PI2 * (i + 1)) / meshRes;
         for (int j = 0; j < meshRes; j++) { // Changes the radius
-            radius = (2.7 * PI2 * (j+1)) / meshRes; // our radius changes each time we finish a j loop  
+            radius = (2.7 * PI2 * (float(j))) / meshRes; // our radius changes each time we finish a j loop  
             // skip the center tho
             // might do (float)j * to the front of each 
             circularVerts[6*(1+i*meshRes+j)] = radius * cos(theta * (float)i); // do the x variable x = -rcos(theta); 
@@ -340,16 +339,17 @@ void MyRemeshCircularSurf()
             xVal = radius * cos(theta * (float)i);
             yVal = (radius * sin(radius)) / (1 + radius);
             zVal = radius * sin(-1.0 * theta * (float)i); 
+            slope = (sin(radius) + (radius * radius + radius) * cos(radius)) / ((radius + 1) * (radius + 1));
 
             magnitude = sqrt((xVal * xVal) + (yVal * yVal) + (zVal * zVal)); 
-            circularVerts[6 * (1 + i * meshRes + j) + 3] = 0; // normal x
-            circularVerts[6 * (1 + i * meshRes + j) + 4] = (-1.0 / magnitude); // normal y 
-            circularVerts[6 * (1 + i * meshRes + j) + 5] = 0; // normal z 
+            circularVerts[6 * (1 + i * meshRes + j) + 3] = -1.0 * ((cos(theta * (float)i)) * slope)/ magnitude; // normal x
+            circularVerts[6 * (1 + i * meshRes + j) + 4] = (1.0 / magnitude); // normal y 
+            circularVerts[6 * (1 + i * meshRes + j) + 5] = 1.0 *( sin(theta * (float)i) * slope) / magnitude; // normal z 
         }
     }
     // work in cylindrical coordinates-> (r,y) plane Calculate the tangent   
     // rotate 90 degrees 
-
+    
     // Circular elements 
     int oddIndex = 1; 
     for (int i = 0; i < meshRes; i++) {
