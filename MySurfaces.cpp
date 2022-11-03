@@ -115,8 +115,8 @@ void MyRenderSurfaces() {
     MyRenderFloor();
 
     // WRITE MyRemeshCircularSurf (see below) AND USE IT INSTEAD OF RemeshCircularDemo
-    RenderCircularDemo();
-    // MyRenderCircularSurf();
+    //RenderCircularDemo();
+    MyRenderCircularSurf();
 
     check_for_opengl_errors();      // Watch the console window for error messages!
 }
@@ -307,64 +307,73 @@ void MyRemeshCircularSurf()
     // AND DELETE ANY TEMPORARILY ALLOCATED MEMORY.
 
     // its 9 * 6 
-    int numCircularVerts = (meshRes + 2) * ((meshRes * 2) + 1);
+    int numCircularVerts = ((meshRes)*meshRes + 1) * 6; 
     float* circularVerts = new float[numCircularVerts];
-    int numCircularElements = meshRes * (meshRes + 1);
+    int numCircularElements = (2* meshRes + 1)*meshRes; 
     unsigned int* circularElements = new unsigned int[numCircularElements];
-
-    // fill up the arrays now 
-    /*
-    //      in MySetupSurfaces() above.
-    float circularVerts[] = {
-        // Vertex positions     Normals (please make them *unit* vectors)
-        0.0f, 1.0f, 0.0f,       0.0f, 1.0f, 0.0f,        // Central vertex
-        0.0f, 0.866f, 0.5f,     0.0f, 0.866f, 0.5f,     // Over positive z axis
-        0.0f, 0.5f, 0.866f,     0.0f, 0.5f, 0.866f,
-        0.5f, 0.866f, 0.0f,     0.5f, 0.866f, 0.0f,     // Over positive x-axis
-        0.866f, 0.5f, 0.0f,     0.866f, 0.5f, 0.0f,
-        0.0f, 0.866f, -0.5f,    0.0f, 0.866f, -0.5f,    // Over negative z axis
-        0.0f, 0.5f, -0.866f,    0.0f, 0.5f, -0.866f,
-        -0.5f, 0.866f, 0.0f,    -0.5f, 0.866f, 0.0f,    // Over negative x-axis
-        -0.866f, 0.5f, 0.0f,    -0.866f, 0.5f, 0.0f,
-    };
-    // Circular elements (indices to vertices in triangle strips)
-    unsigned int circularElements[] = {
-        0, 1, 3, 2, 4,            // Elements for first triangle strip
-        0, 3, 5, 4, 6,            // Elements for second triangle strip
-        0, 5, 7, 6, 8,            // Elements for third triangle strip
-        0, 7, 1, 8, 2            // Elements for fourth triangle strip
-    };*/
 
     // Circular Verts 
     // go through the rows then go through each set
-    float radius = 2.7* PI2 / meshRes; // sets our 
-    for (int i = 0; i < meshRes; i++) { // this controlsgoing around 
-        radius = 2.7 * PI2*  i / meshRes; // update the radius going around 
-        for (int j = 0; j < meshRes; j++) { // this controls the evolving radius 
-            circularVerts[i * meshRes + j] = 0; // do the x variable 
-            circularVerts[i * meshRes + j] = 0; // y variable 
-            circularVerts[i * meshRes + j] = 0; // z variable 
+    float radius = 0.0;  // radius  
+    float theta = PI2 / meshRes; // say our meshRes is 4 then we go around the circle (2pi) in 4 equal times 
+    // explicitly put in the central point 
+    circularVerts[0] = 0.0f; 
+    circularVerts[1] = 0.0f; 
+    circularVerts[2] = 0.0f;
+    // set the normal 
+    circularVerts[3] = 0.0f; 
+    circularVerts[4] = 1.0f; 
+    circularVerts[5] = 0.0f; 
+
+    // Define the variables necessary 
+    float slope = 0, compute = 0, magnitude = 0, xVal = 0, yVal = 0, zVal = 0;
+    float magnitude = 0; 
+    for (int i = 0; i < meshRes; i++) { // this controls going aroud, so it should change our theta value each time it goes through 
+        //radius = (2.7 * PI2 * (i + 1)) / meshRes;
+        for (int j = 0; j < meshRes; j++) { // Changes the radius
+            radius = (2.7 * PI2 * (j+1)) / meshRes; // our radius changes each time we finish a j loop  
+            // skip the center tho
+            // might do (float)j * to the front of each 
+            circularVerts[6*(1+i*meshRes+j)] = radius * cos(theta * (float)i); // do the x variable x = -rcos(theta); 
+            circularVerts[6 * (1 + i * meshRes + j) + 1] =  (radius * sin(radius)) / (1 + radius); // y variable y = r*sin(r) / 1 + r
+            circularVerts[6 * (1 + i * meshRes + j) + 2] =  radius * sin(-1.0 * theta* (float)i); // z variable z = -rsin(theta); 
+            xVal = radius * cos(theta * (float)i);
+            yVal = (radius * sin(radius)) / (1 + radius);
+            zVal = radius * sin(-1.0 * theta * (float)i); 
+
+            magnitude = sqrt((xVal * xVal) + (yVal * yVal) + (zVal * zVal)); 
+            circularVerts[6 * (1 + i * meshRes + j) + 3] = 0; // normal x
+            circularVerts[6 * (1 + i * meshRes + j) + 4] = (-1.0 / magnitude); // normal y 
+            circularVerts[6 * (1 + i * meshRes + j) + 5] = 0; // normal z 
         }
     }
+    // work in cylindrical coordinates-> (r,y) plane Calculate the tangent   
+    // rotate 90 degrees 
 
     // Circular elements 
-    unsigned int oddIndex_c = 1;
-    unsigned int evenIndex_c = meshRes - 1;
+    int oddIndex = 1; 
     for (int i = 0; i < meshRes; i++) {
-        circularElements[i * (meshRes + 1)] = 0;// sets the first element to 0 
-        for (int j = 1; j < meshRes + 1; j++) {
+        // takes care of the 4 spokes 
+        circularElements[i * (meshRes * 2 + 1)] = 0;
+        // now for each spoke, we need to iterate through the 
+        for (int j = 1; j < (meshRes * 2 + 1); j += 2) {
+            // take care of two points at once 
+            if (i + 1 == meshRes) {
+                // we are on the last step
+                circularElements[i * (meshRes * 2 + 1) + j] = oddIndex;
+                circularElements[i * (meshRes * 2 + 1) + j + 1] = circularElements[j];
+            }
 
-            // we're at one past, so just set to 1
-            if (evenIndex_c % ((meshRes * 2) + 1) == 0) evenIndex_c = 1;
-            if (oddIndex_c % ((meshRes * 2) + 1) == 0) oddIndex_c = 1;
-            // here we can just check if our current j is odd or even 
-            if (j % 2 == 0) circularElements[i * (meshRes + 1) + j] = evenIndex_c++;
-            else if (j % 2 != 0) circularElements[i * (meshRes + 1) + j] = oddIndex_c++;
+            else {
+                circularElements[i * (meshRes * 2 + 1) + j] = oddIndex;
+                circularElements[i * (meshRes * 2 + 1) + j + 1] = oddIndex + meshRes;
+            }
+            oddIndex += 1;
         }
     }
 #if 1
     // SOME SUGGESTED TEST CODE: Can be used to examine contents of your arrays
-    printf("floorElements:\n");
+    printf("orElements:\n");
     for (int k = 0; k < numCircularElements; k++) {
         printf("%d, ", circularElements[k]);
     }
@@ -374,7 +383,7 @@ void MyRemeshCircularSurf()
     // Done 
     glBindVertexArray(myVAO[iCircularSurf]);
     glBindBuffer(GL_ARRAY_BUFFER, myVBO[iCircularSurf]);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * numCircularVerts, circularVerts, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float)  * numCircularVerts, circularVerts, GL_STATIC_DRAW);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, myEBO[iCircularSurf]);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * numCircularElements, circularElements, GL_STATIC_DRAW);
 
@@ -415,12 +424,12 @@ void MyRenderFloor()
 void MyRenderCircularSurf()
 {
     // Render the circular surface using calls to glDrawElements.
-    // YOU MUST WRITE THIS FUNCTION FOR PROJECT 4.
+    // YOU MUST WRITE THIS FUNCTION FOR PROJECT 4
 
-    // mesh rez 
+    glBindVertexArray(myVAO[iCircularSurf]);
     LinearMapR4 matDemo = viewMatrix;
     matDemo.Mult_glTranslate(2.5, 1.0, 2.5);     // Center in the front right quadrant & raise up
-    matDemo.Mult_glScale(3.0, 1.0, 3.0);         // Increase the circular diameter
+    matDemo.Mult_glScale(1.0/5.0, 1.0, 1.0/5.0);         // Increase the circular diameter
 
     // Set the uniform values (they are not stored with the VAO and thus must be set again everytime
     glVertexAttrib3f(vColor_loc, 1.0f, 0.8f, 0.4f);	 // Generic vertex attribute: Color (yellow-ish) for the circular surface. 
@@ -429,14 +438,7 @@ void MyRenderCircularSurf()
 
 
     for (int i = 0; i < meshRes; i++) {
-        glDrawElements(GL_TRIANGLE_STRIP, (meshRes + 1), GL_UNSIGNED_INT, (void*)(i * (meshRes + 1) * sizeof(unsigned int)));
+        // might be 2 * meshRes + 1
+        glDrawElements(GL_TRIANGLE_STRIP, (2 * meshRes + 1), GL_UNSIGNED_INT, (void*)(i * (2 * meshRes + 1) * sizeof(unsigned int)));
     }
-
-    /*
-    // Draw the four triangle strips
-    glDrawElements(GL_TRIANGLE_STRIP, 5, GL_UNSIGNED_INT, (void*)0);                             // Draw first triangle strip
-    glDrawElements(GL_TRIANGLE_STRIP, 5, GL_UNSIGNED_INT, (void*)(5 * sizeof(unsigned int)));    // Draw second triangle strip
-    glDrawElements(GL_TRIANGLE_STRIP, 5, GL_UNSIGNED_INT, (void*)(10 * sizeof(unsigned int)));   // Draw third triangle strip
-    glDrawElements(GL_TRIANGLE_STRIP, 5, GL_UNSIGNED_INT, (void*)(15 * sizeof(unsigned int)));   // Draw fourth triangle strip
-    */
 }
